@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demo
+spec:
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers:
+      - name: vault-side-kick
+        image: quay.io/ukhomeofficedigital/vault-sidekick:v0.3.3
+        imagePullPolicy: Always
+        args:
+          - "-output=/env/variables"
+          - "-cn=pki:intermediate-ca/certs/demo-role:common_name=commons.example.com,revoke=true,update=2h"
+          - "-cn=secret:secret/demo/bibi:file=.credentials"
+        volumeMounts:
+        - name: shared-data
+          mountPath: /env
+      - name: vault-renewer
+        imagePullPolicy: Always
+        image: chrislevi/kube-vault-auth-renewer
+        env:
+        - name: RENEW_INTERVAL
+          value: "21600"
+        - name: VAULT_ADDR
+          value: "http://demo:8200"
+        volumeMounts:
+        - name: shared-data
+          mountPath: /env
+      - name: my-app
+        image: alpine
+        command: ["/bin/sh", "-c", "source /env/variables; ls -l /env/PKI/main; cat /env/variables"]
+        volumeMounts:
+        - name: shared-data
+          mountPath: /env
+      volumes:
+        - name: shared-data
+          emptyDir: {}
+

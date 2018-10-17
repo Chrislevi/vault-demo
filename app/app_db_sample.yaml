@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demo
+spec:
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      serviceAccountName: default
+      volumes:
+      - name: mongodb-data
+        hostPath:
+          path: /tmp/mongodb
+      containers:
+      - image: mongo
+        name: mongodb
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: "admin"
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: "Password!"
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+        ports:
+        - containerPort: 27017
+          protocol: TCP
