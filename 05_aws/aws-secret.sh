@@ -2,8 +2,8 @@
 
 vault secrets enable aws
 vault write aws/config/root \
-    access_key=AKIAIEDTZ7MKUIFPLSLA \
-    secret_key=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 \
+    access_key=AKIAIEDTZ7MKUIFPLSLD \
+    secret_key=XXXX \
     region=us-east-1
 
 vault write aws/roles/demo-role policy=-<<EOF
